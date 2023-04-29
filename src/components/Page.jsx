@@ -4,6 +4,7 @@ import { Anchor, Button, RangeSlider, SegmentedControl, Text, TextInput, createS
 import ModList from 'components/ModList';
 import { generateQuery } from 'util/generateQuery';
 import data from 'util/crucibleMods.json';
+import { generateSegmentedControlData } from 'util/weaponType';
 
 /**
  * ! MAKE SURE THIS IS UPDATED WITH EACH RELEASE, AS WELL AS CHANGELOG.MD
@@ -45,6 +46,7 @@ export default function Page() {
   }, [weaponType])
 
   const handleWeaponTypeChange = (weaponType) => {
+    console.log(1, weaponType)
     setWeaponType(weaponType)
   }
 
@@ -62,7 +64,8 @@ export default function Page() {
 
   const handleGenerateTradeLink = useCallback(() => {
     const enabledModIds = Object.entries(modTracker).filter(mod => mod[1] === true).map(mod => mod[0])
-    setTradeLink(`https://www.pathofexile.com/trade/search?q=${encodeURIComponent(JSON.stringify(generateQuery(enabledModIds, weaponType, minNodes)))}`)
+    const typeString = weaponType === 'helmet' ? 'armour.helmet' : `weapon.${weaponType}`
+    setTradeLink(`https://www.pathofexile.com/trade/search?q=${encodeURIComponent(JSON.stringify(generateQuery(enabledModIds, typeString, minNodes)))}`)
   }, [modTracker, weaponType, minNodes])
 
   return (
@@ -90,7 +93,7 @@ export default function Page() {
             <SegmentedControl
               value={weaponType}
               onChange={handleWeaponTypeChange}
-              data={Object.keys(data)}
+              data={generateSegmentedControlData(Object.keys(data))}
               size="md"
               radius="sm"
               color="violet"

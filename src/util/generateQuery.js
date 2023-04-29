@@ -6,7 +6,7 @@
  * @param {string} weaponType 
  * @returns A query to be used in the trade site's "q=" query param
  */
-export const generateQuery = (modList, weaponType, minNodes = 1) => ({
+export const generateQuery = (modList, type, minNodes = 1) => ({
   query: {
     status: {
       option: "online"
@@ -39,7 +39,7 @@ export const generateQuery = (modList, weaponType, minNodes = 1) => ({
       type_filters: {
         filters: {
           category: {
-            option: `weapon.${weaponType}`
+            option: type
           }
         }
       }
