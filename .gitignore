@@ -23,7 +23,6 @@ yarn-debug.log*
 yarn-error.log*
 
 mods_pretty.json
-crucibleMods.json
 mods.json
 poedb.txt
 todo.md
