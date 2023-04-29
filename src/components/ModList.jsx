@@ -47,7 +47,21 @@ export default function ModList({
 
   const handleSelectAllFilteredClick = () => {
     matchedRows.forEach(mod => {
-      handleCheckboxClicked(mod.tradeId)
+      modifyModsCallback({
+        type: 'toggle',
+        override: true,
+        modId: mod.tradeId,
+      })
+    })
+  }
+
+  const handleUnselectAllFilteredClick = () => {
+    matchedRows.forEach(mod => {
+      modifyModsCallback({
+        type: 'toggle',
+        override: false,
+        modId: mod.tradeId,
+      })
     })
   }
 
@@ -71,7 +85,13 @@ export default function ModList({
           size="sm"
           className={classes.generateButton}
           onClick={handleSelectAllFilteredClick}
-        >Select All Filtered</Button>
+        >Select All</Button>
+        <Button
+          color="violet"
+          size="sm"
+          className={classes.generateButton}
+          onClick={handleUnselectAllFilteredClick}
+        >Unselect All</Button>
         <RangeSlider
           step={1}
           min={1}
@@ -102,6 +122,7 @@ export default function ModList({
             <tr>
               <td>
                 <Checkbox
+                  color="violet"
                   checked={modTracker[row.tradeId] === true}
                   onChange={() => handleCheckboxClicked(row.tradeId)}
                   transitionDuration={0}
@@ -134,7 +155,7 @@ const useStyles = createStyles((theme) => ({
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
-    gap: '20px',
+    gap: '10px',
   },
 
   // Slider styles
@@ -142,7 +163,7 @@ const useStyles = createStyles((theme) => ({
     top: 0,
     height: rem(28),
     lineHeight: rem(28),
-    width: rem(34),
+    width: rem(24),
     padding: 0,
     display: 'flex',
     justifyContent: 'center',
@@ -152,7 +173,7 @@ const useStyles = createStyles((theme) => ({
   },
   thumb: {
     height: rem(28),
-    width: rem(34),
+    width: rem(18),
     border: 'none',
   },
   dragging: {
@@ -162,6 +183,7 @@ const useStyles = createStyles((theme) => ({
     width: '100%',
   },
   mark: {
+    marginBottom: '5px',
     backgroundColor: 'transparent',
   }
 }))

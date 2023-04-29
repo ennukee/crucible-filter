@@ -1,13 +1,23 @@
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 
-import { Anchor, Button, Input, RangeSlider, SegmentedControl, Text, TextInput, createStyles, rem } from '@mantine/core';
+import { Anchor, Button, RangeSlider, SegmentedControl, Text, TextInput, createStyles, rem } from '@mantine/core';
 import ModList from 'components/ModList';
 import { generateQuery } from 'util/generateQuery';
 import data from 'util/crucibleMods.json';
 
+/**
+ * ! MAKE SURE THIS IS UPDATED WITH EACH RELEASE, AS WELL AS CHANGELOG.MD
+ */
+const VERSION_NUMBER = '1.1.1';
 
 const reducer = (state, action) => {
   if (action.type === 'toggle') {
+    if (action.override !== undefined) {
+      return {
+        ...state,
+        [action.modId]: action.override,
+      }
+    }
     return {
       ...state,
       [action.modId]: !(state[action.modId] || false)
@@ -60,7 +70,7 @@ export default function Page() {
       <div className={classes.headerContainer}>
         <Text size="60px">Crucible Trade Search Generator</Text>
         <Text size="16px" className={classes.subtitle}>
-          Take note that changing weapon type or reloading the page will erase all selected mods <Anchor color="violet" href="https://github.com/ennukee/crucible-filter/blob/master/changelog.md" target="_blank">(ver. 1.1.0)</Anchor>
+          Take note that changing weapon type or reloading the page will erase all selected mods <Anchor color="violet" href="https://github.com/ennukee/crucible-filter/blob/master/changelog.md" target="_blank">(ver. {VERSION_NUMBER})</Anchor>
         </Text>
         <div className={classes.controls}>
           <div className={classes.generateSection}>
