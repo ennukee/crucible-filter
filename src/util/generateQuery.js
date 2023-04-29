@@ -6,43 +6,46 @@
  * @param {string} weaponType 
  * @returns A query to be used in the trade site's "q=" query param
  */
-export const generateQuery = (modList, weaponType) => ({
-  "query": {
-    "status": {
-      "option": "online"
+export const generateQuery = (modList, weaponType, minNodes = 1) => ({
+  query: {
+    status: {
+      option: "online"
     },
-    "stats": [
+    stats: [
       {
-        "type": "and",
-        "filters": []
+        type: "and",
+        filters: []
       },
       {
-        "filters": [
-          modList.map(mod => ({
+        filters: [
+          ...modList.map(mod => ({
             id: mod
           })),
         ],
-        "type": "crucible"
+        type: "crucible",
+        value: {
+          min: minNodes,
+        }
       }
     ],
-    "filters": {
-      "trade_filters": {
-        "filters": {
-          "collapse": {
-            "option": "true"
+    filters: {
+      trade_filters: {
+        filters: {
+          collapse: {
+            option: "true"
           }
         }
       },
-      "type_filters": {
-        "filters": {
-          "category": {
-            "option": weaponType
+      type_filters: {
+        filters: {
+          category: {
+            option: `weapon.${weaponType}`
           }
         }
       }
     }
   },
-  "sort": {
-    "price": "asc"
+  sort: {
+    price: "asc"
   }
 })

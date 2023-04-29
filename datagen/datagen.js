@@ -13,9 +13,18 @@
 const fs = require('fs');
 const path = require('path');
 const jsdom = require('jsdom');
+const { default: puppeteer } = require('puppeteer');
 
 const mods = require('./mods.json');
 const crucibleMods = mods.result.find(mod => mod.id === 'crucible')
+
+const ENABLE_DEBUG_LOGGING = true;
+
+console.debug = (...args) => {
+  if (ENABLE_DEBUG_LOGGING) {
+    console.log(...args);
+  }
+}
 
 const weaponTypeToPoeDbDivId = {
   bow: 'BowsWeaponPassive',
@@ -26,6 +35,12 @@ const weaponTypeToPoeDbDivId = {
   twosword: 'TwoHandSwordsWeaponPassive',
   wand: 'WandsWeaponPassive',
 }
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const hoverPageUrl = 'https://poedb.tw/us/hover'
 
 // These are for cases where the PoEDB and official texts differ, usually due to lines being swapped
 const manualNameOverrides = {
@@ -60,7 +75,9 @@ const manualNameOverrides = {
 const main = async () => {
   const output = {}
   const erroredModTexts = []
-  Object.entries(weaponTypeToPoeDbDivId).forEach(([weaponType, poeDbId]) => {
+  const entries = Object.entries(weaponTypeToPoeDbDivId)
+  for (let q = 0; q < entries.length; q++) {
+    const [weaponType, poeDbId] = entries[q]
     output[weaponType] = {
       1: [],
       2: [],
@@ -75,14 +92,42 @@ const main = async () => {
      * 2. Pick out the following from each row: Tier (1/2/3/4/5), Weighting, Mod Name
      * 3. Lookup mod id for given mod name, attach it to the object
      * 4. Use all this information to generate the data file for the FE
-     */
-
+    */
+   
     const POEDB_HTML = fs.readFileSync(path.resolve(__dirname, 'poedb.txt'), 'utf8');
     const dom = new jsdom.JSDOM(POEDB_HTML);
     const cssSelector = `.tab-pane#${poeDbId} tr[role^="row"]`
+    
+    const browser = await puppeteer.launch({ headless: 'new' })
+    const page = await browser.newPage()
 
-    // eslint-disable-next-line no-unused-vars
-    const a = [...dom.window.document.querySelectorAll(cssSelector)].forEach(row => {
+    const rows = [...dom.window.document.querySelectorAll(cssSelector)]
+    // for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < rows.length; i++) {
+      await sleep(50);
+      const row = rows[i];
+
+      // ! PUPPETEER SECTION TO GET LEVEL REQS
+      const iconLink = row.querySelector('.fas.fa-info-circle')?.attributes['data-hover']?.nodeValue
+      if (!iconLink) {
+        console.debug('no icon found for row index', i)
+        continue;
+      }
+      
+      const url = `${hoverPageUrl}${iconLink}`
+      await page.goto(url)
+      const tbody = await page.$('tbody')
+      const content = await page.evaluate(el => el.textContent, tbody)
+
+      const levelReqRegex = /Req\. level(\d+)(?: \(Effective: (\d+)\))?/g
+      const levelMatches = levelReqRegex.exec(content)
+      if (!levelMatches) {
+        console.debug('unable to find level requirements for row index', i);
+      }
+      const [, generateIlvlReq, equippedIlvlReq] = levelMatches
+      console.debug(generateIlvlReq, equippedIlvlReq)
+      // ! END OF PUPPETEER SECTION
+
       const tds = [...row.querySelectorAll('td')]
       if (tds.length < 2 || !tds[0] || !tds[1]) return;
       let modText = tds[1].textContent.trim(' ')
@@ -112,25 +157,30 @@ const main = async () => {
       // Match all cases of tiers (some are present on up to 3 unique columns)
       const modTierRegex = /^(\d+)\s*\(\s*(T\d+)(?:\s*, \s*(T\d+))?(?:\s*, \s*(T\d+))?\s*\)$/g
       const matches = modTierRegex.exec(tds[0].textContent)
+      console.debug('textContent for tier', tds[0].textContent)
       if (matches) {
         const [, modWeight, tier, extraTier1, extraTier2] = matches;
         const tiers = [tier, extraTier1, extraTier2]
+        console.debug('tiers on row', tier, extraTier1, extraTier2)
         tiers.forEach(t => {
           if (!t) return;
           output[weaponType][t.slice(-1)].push({
             tradeId: relevantEntry.id,
             description: relevantEntry.text,
             weighting: modWeight,
+            generateIlvlReq,
+            equippedIlvlReq: equippedIlvlReq || generateIlvlReq,
 
             // Put all flags in if it's a bugged entry, to be fixed manually
             ...(relevantEntry.flagged ? relevantEntry : {})
           })
         })
+      } else {
+        console.debug('issues finding matches for modname', tds[0].textContent)
       }
-    })
-
-  })
-
+    }
+    browser.close()
+  }
   fs.writeFile('../src/util/crucibleMods.json', JSON.stringify(output, null, 2), null, () => {})
 }
 
