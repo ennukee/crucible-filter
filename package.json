@@ -1,5 +1,6 @@
 {
   "name": "crucible-filter",
+  "homepage": "https://dbowers.io/crucible-filter",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
