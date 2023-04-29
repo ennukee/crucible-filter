@@ -1,8 +1,8 @@
 {
   "files": {
-    "main.js": "/static/js/main.987f494c.js",
-    "index.html": "/index.html",
-    "main.987f494c.js.map": "/static/js/main.987f494c.js.map"
+    "main.js": "/crucible-filter/static/js/main.987f494c.js",
+    "index.html": "/crucible-filter/index.html",
+    "main.987f494c.js.map": "/crucible-filter/static/js/main.987f494c.js.map"
   },
   "entrypoints": [
     "static/js/main.987f494c.js"
