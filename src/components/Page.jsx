@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useState } from 'react'
+import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 
 import { Anchor, Button, Input, RangeSlider, SegmentedControl, Text, TextInput, createStyles, rem } from '@mantine/core';
 import ModList from 'components/ModList';
@@ -21,9 +21,13 @@ const initialReducerState = {}
 export default function Page() {
   const [modTracker, modifyMods] = useReducer(reducer, initialReducerState)
   const [weaponType, setWeaponType] = useState('bow')
-  const [ilvlRange, setIlvlRange] = useState([50, 100])
   const [tradeLink, setTradeLink] = useState('')
   const [minNodes, setMinNodes] = useState(2)
+
+  const [ilvlRange, setIlvlRange] = useState([1, 68])
+  const [fnIlvlRange, setFnIlvlRange] = useState([1, 68])
+  const timeoutRef = useRef();
+
   const { classes } = useStyles();
 
   useEffect(() => {
@@ -36,6 +40,10 @@ export default function Page() {
 
   const handleIlvlRangeChange = (range) => {
     setIlvlRange(range)
+    clearTimeout(timeoutRef.current)
+    timeoutRef.current = setTimeout(() => {
+      setFnIlvlRange(range)
+    }, 250)
   }
 
   const handleMinNodesChange = (event) => {
@@ -78,13 +86,12 @@ export default function Page() {
             />
           </div>
           <div className={classes.sliderSection}>
-            <Text className={classes.sliderLabel} weight="bold">ilvl</Text>
             <RangeSlider
-              // mt="md"
-              // mb="md"
-              // radius="sm"
               step={1}
               color="violet"
+              minRange={5}
+              min={1}
+              max={68}
               value={ilvlRange}
               onChange={handleIlvlRangeChange}
               labelAlwaysOn
@@ -98,11 +105,11 @@ export default function Page() {
                 width: '100%',
               }}
               marks={[
-                { value: 0, label: '0' },
-                { value: 25, label: '25' },
-                { value: 50, label: '50' },
-                { value: 75, label: '75' },
-                { value: 100, label: '100' },
+                { value: 1, label: '1' },
+                { value: 17, label: '17' },
+                { value: 34, label: 'Item Level Req' },
+                { value: 51, label: '51' },
+                { value: 68, label: '68' },
               ]}
             />
           </div>
@@ -119,7 +126,7 @@ export default function Page() {
       </div>
       <div className={classes.modSection}>
         {Object.values(data[weaponType]).map((data, index) => (
-          <ModList ilvlRange={ilvlRange} tierIndex={index} modList={data} modTracker={modTracker} modifyModsCallback={modifyMods} />
+          <ModList ilvlRange={fnIlvlRange} tierIndex={index} modList={data} modTracker={modTracker} modifyModsCallback={modifyMods} />
         ))}
       </div>
     </div>
