@@ -30,10 +30,18 @@ const weaponTypeToPoeDbDivId = {
   bow: 'BowsWeaponPassive',
   claw: 'ClawsWeaponPassive',
   onesword: 'OneHandSwordsWeaponPassive',
+  twosword: 'TwoHandSwordsWeaponPassive',
+  oneaxe: 'OneHandAxesWeaponPassive',
+  twoaxe: 'TwoHandAxesWeaponPassive',
+  onemace: 'OneHandMacesWeaponPassive',
+  twomace: 'TwoHandMacesWeaponPassive',
+  dagger: 'DaggersWeaponPassive',
+  runedagger: 'RuneDaggersWeaponPassive',
+  shield: 'ShieldsWeaponPassive',
   sceptre: 'SceptresWeaponPassive',
   staff: 'StavesWeaponPassive',
-  twosword: 'TwoHandSwordsWeaponPassive',
   wand: 'WandsWeaponPassive',
+  helmet: 'crucible_unique_helmetWeaponPassive',
 }
 
 function sleep(ms) {
@@ -157,16 +165,22 @@ const main = async () => {
       // Match all cases of tiers (some are present on up to 3 unique columns)
       const modTierRegex = /^(\d+)\s*\(\s*(T\d+)(?:\s*, \s*(T\d+))?(?:\s*, \s*(T\d+))?\s*\)$/g
       const matches = modTierRegex.exec(tds[0].textContent)
-      console.debug('textContent for tier', tds[0].textContent)
+      // console.debug('textContent for tier', tds[0].textContent)
       if (matches) {
         const [, modWeight, tier, extraTier1, extraTier2] = matches;
         const tiers = [tier, extraTier1, extraTier2]
-        console.debug('tiers on row', tier, extraTier1, extraTier2)
+        // console.debug('tiers on row', tier, extraTier1, extraTier2)
         tiers.forEach(t => {
           if (!t) return;
+          const tierRegex = /\(Tier ([1-9])\)/g
+          const matches = tierRegex.exec(relevantEntry.text)
+          if (!matches) {
+            console.debug('found case without a tier:', relevantEntry)
+          }
           output[weaponType][t.slice(-1)].push({
             tradeId: relevantEntry.id,
             description: relevantEntry.text,
+            tier: (matches ? +matches[1] : 0),
             weighting: modWeight,
             generateIlvlReq,
             equippedIlvlReq: equippedIlvlReq || generateIlvlReq,

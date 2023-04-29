@@ -17,7 +17,7 @@
 const fs = require('fs');
 const data = require('../src/util/crucibleMods')
 
-const main = () => {
+const addTierFields = () => {
   const newOutput = {}
   Object.entries(data).forEach(([weaponType, tierArray]) => {
     newOutput[weaponType] = {}
@@ -40,4 +40,6 @@ const main = () => {
   fs.writeFile('./reviewMe.json', JSON.stringify(newOutput, null, 2), null, () => {})
 }
 
-main();
+module.exports = {
+  modifications: [addTierFields]
+}
