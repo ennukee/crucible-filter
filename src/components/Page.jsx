@@ -59,7 +59,9 @@ export default function Page() {
     <div className={classes.container}>
       <div className={classes.headerContainer}>
         <Text size="60px">Crucible Trade Search Generator</Text>
-        <Text size="16px" className={classes.subtitle}>Take note that changing weapon type or reloading the page will erase all selected mods</Text>
+        <Text size="16px" className={classes.subtitle}>
+          Take note that changing weapon type or reloading the page will erase all selected mods <Anchor color="violet" href="https://github.com/ennukee/crucible-filter/blob/master/changelog.md" target="_blank">(ver. 1.1.0)</Anchor>
+        </Text>
         <div className={classes.controls}>
           <div className={classes.generateSection}>
             <Button
