@@ -69420,19 +69420,18 @@
         "equippedIlvlReq": "65"
       },
       {
-        "tradeId": "FIX_ME",
-        "description": "FIX_ME",
-        "tier": 0,
+        "tradeId": "crucible.mod_54128",
+        "description": "+3% to maximum Cold Resistance\n-2% to maximum Lightning Resistance",
+        "tier": 1,
         "weighting": "100",
         "generateIlvlReq": "45",
         "equippedIlvlReq": "36",
         "flagged": true,
-        "poeDbTextRemoveWhenFixed": "-2% to maximum Lightning Resistance+3% to maximum Cold Resistance"
       },
       {
-        "tradeId": "FIX_ME",
-        "description": "FIX_ME",
-        "tier": 0,
+        "tradeId": "crucible.mod_56323",
+        "description": "+4% to maximum Cold Resistance\n-2% to maximum Lightning Resistance",
+        "tier": 2,
         "weighting": "100",
         "generateIlvlReq": "82",
         "equippedIlvlReq": "65",
@@ -69440,24 +69439,20 @@
         "poeDbTextRemoveWhenFixed": "-2% to maximum Lightning Resistance+4% to maximum Cold Resistance"
       },
       {
-        "tradeId": "FIX_ME",
-        "description": "FIX_ME",
-        "tier": 0,
+        "tradeId": "crucible.mod_28596",
+        "description": "-2% to maximum Cold Resistance\n+3% to maximum Lightning Resistance",
+        "tier": 1,
         "weighting": "100",
         "generateIlvlReq": "45",
-        "equippedIlvlReq": "36",
-        "flagged": true,
-        "poeDbTextRemoveWhenFixed": "+3% to maximum Lightning Resistance-2% to maximum Cold Resistance"
+        "equippedIlvlReq": "36"
       },
       {
-        "tradeId": "FIX_ME",
-        "description": "FIX_ME",
-        "tier": 0,
+        "tradeId": "crucible.mod_12450",
+        "description": "-2% to maximum Cold Resistance\n+4% to maximum Lightning Resistance",
+        "tier": 2,
         "weighting": "100",
         "generateIlvlReq": "82",
-        "equippedIlvlReq": "65",
-        "flagged": true,
-        "poeDbTextRemoveWhenFixed": "+4% to maximum Lightning Resistance-2% to maximum Cold Resistance"
+        "equippedIlvlReq": "65"
       },
       {
         "tradeId": "crucible.mod_32353",
