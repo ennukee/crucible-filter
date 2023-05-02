@@ -18,28 +18,56 @@ const fs = require('fs');
 const data = require('../src/util/crucibleMods')
 
 const addTierFields = () => {
+  // const newOutput = {}
+  // Object.entries(data).forEach(([weaponType, tierArray]) => {
+  //   newOutput[weaponType] = {}
+  //   Object.entries(tierArray).forEach(([column, mods]) => {
+  //     newOutput[weaponType][column] = mods.map(mod => {
+  //       const tierRegex = /\(Tier ([1-9])\)/g
+  //       const matches = tierRegex.exec(mod.description)
+  //       if (!matches) {
+  //         console.log('found case without a tier:', mod)
+  //         return mod
+  //       }
+  //       return {
+  //         ...mod,
+  //         tier: +matches[1],
+  //       }
+  //     })
+  //   })
+  // })
+  
+  // fs.writeFile('./reviewMe.json', JSON.stringify(newOutput, null, 2), null, () => {})
+}
+
+const calculateTotalWeight = () => {
+  const totalsByWeaponType = {}
+  Object.entries(data).forEach(([weaponType, tierArray]) => {
+    totalsByWeaponType[weaponType] = {}
+    Object.entries(tierArray).forEach(([column, mods]) => {
+      totalsByWeaponType[weaponType][column] = 0
+      mods.forEach(mod => {
+        totalsByWeaponType[weaponType][column] += (+mod.weighting)
+      })
+    })
+  })
+
   const newOutput = {}
   Object.entries(data).forEach(([weaponType, tierArray]) => {
     newOutput[weaponType] = {}
     Object.entries(tierArray).forEach(([column, mods]) => {
-      newOutput[weaponType][column] = mods.map(mod => {
-        const tierRegex = /\(Tier ([1-9])\)/g
-        const matches = tierRegex.exec(mod.description)
-        if (!matches) {
-          console.log('found case without a tier:', mod)
-          return mod
-        }
-        return {
-          ...mod,
-          tier: +matches[1],
-        }
-      })
+      newOutput[weaponType][column] = mods.map(mod => ({
+        ...mod,
+        totalColumnWeighting: totalsByWeaponType[weaponType][column],
+      }))
     })
   })
-  
+
   fs.writeFile('./reviewMe.json', JSON.stringify(newOutput, null, 2), null, () => {})
 }
 
 module.exports = {
-  modifications: [addTierFields]
+  modifications: [addTierFields, calculateTotalWeight]
 }
+
+calculateTotalWeight()
