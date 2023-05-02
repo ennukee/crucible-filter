@@ -129,7 +129,15 @@ export default function ModList({
                 />
               </td>
               <td>
-                {row.description} <b>(Lv{row.equippedIlvlReq})</b>
+                <b>1/{(1 / (+row.weighting / row.totalColumnWeighting)).toFixed(0)}</b>
+              </td>
+              <td>
+                {row.description.split('\n').map((line, index) => (
+                  <>
+                    {line}
+                    {index < row.description.split('\n').length - 1 && <br />}
+                  </>
+                ))} <b>(Lv{row.equippedIlvlReq})</b>
               </td>
             </tr>
           ))}

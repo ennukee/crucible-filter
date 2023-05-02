@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 
-import { Anchor, Button, RangeSlider, SegmentedControl, Text, TextInput, createStyles, rem } from '@mantine/core';
+import { Anchor, Button, RangeSlider, SegmentedControl, Switch, Text, TextInput, createStyles, rem } from '@mantine/core';
 import ModList from 'components/ModList';
 import { generateQuery } from 'util/generateQuery';
 import data from 'util/crucibleMods.json';
@@ -9,7 +9,7 @@ import { generateSegmentedControlData } from 'util/weaponType';
 /**
  * ! MAKE SURE THIS IS UPDATED WITH EACH RELEASE, AS WELL AS CHANGELOG.MD
  */
-const VERSION_NUMBER = '1.1.1';
+const VERSION_NUMBER = '1.1.3a';
 
 const reducer = (state, action) => {
   if (action.type === 'toggle') {
@@ -29,16 +29,26 @@ const reducer = (state, action) => {
 }
 const initialReducerState = {}
 
+const visibilityReducer = (state, action) => {
+  if (action.type === 'toggle') {
+    return {
+      ...state,
+      [action.index]: !state[action.index],
+    }
+  }
+}
+const initialVisibilityState = { 0: true, 1: true, 2: true, 3: true, 4: true }
+
 export default function Page() {
   const [modTracker, modifyMods] = useReducer(reducer, initialReducerState)
   const [weaponType, setWeaponType] = useState('bow')
   const [tradeLink, setTradeLink] = useState('')
   const [minNodes, setMinNodes] = useState(2)
-
   const [ilvlRange, setIlvlRange] = useState([1, 68])
   const [fnIlvlRange, setFnIlvlRange] = useState([1, 68])
-  const timeoutRef = useRef();
+  const [columnVisibility, modifyVisibility] = useReducer(visibilityReducer, initialVisibilityState)
 
+  const timeoutRef = useRef();
   const { classes } = useStyles();
 
   useEffect(() => {
@@ -64,9 +74,16 @@ export default function Page() {
 
   const handleGenerateTradeLink = useCallback(() => {
     const enabledModIds = Object.entries(modTracker).filter(mod => mod[1] === true).map(mod => mod[0])
-    const typeString = weaponType === 'helmet' ? 'armour.helmet' : `weapon.${weaponType}`
+    const typeString = ['helmet', 'shield'].includes(weaponType) ? `armour.${weaponType}` : `weapon.${weaponType}`
     setTradeLink(`https://www.pathofexile.com/trade/search?q=${encodeURIComponent(JSON.stringify(generateQuery(enabledModIds, typeString, minNodes)))}`)
   }, [modTracker, weaponType, minNodes])
+
+  const handleToggleColumnVisibility = (index) => {
+    modifyVisibility({
+      type: 'toggle',
+      index,
+    })
+  }
 
   return (
     <div className={classes.container}>
@@ -128,19 +145,36 @@ export default function Page() {
               ]}
             />
           </div>
-          <TextInput
-            size="md"
-            label="Minimum nodes to match"
-            description="Usually the number of columns you add a node to, but not always"
-            placeholder="min"
-            value={minNodes}
-            onChange={handleMinNodesChange}
-            className={classes.generateMinNodesInput}
-          />
+          <div className={classes.secondRowControls}>
+            <TextInput
+              size="md"
+              label="Minimum nodes to match"
+              description="Usually the number of columns you add a node to, but not always"
+              placeholder="min"
+              value={minNodes}
+              onChange={handleMinNodesChange}
+              className={classes.generateMinNodesInput}
+            />
+            <div className={classes.columnSwitchContainer}>
+              <Text weight="bold" size="lg">Enable/Disable Columns</Text>
+              <div className={classes.columnSwitches}>
+                {[0,1,2,3,4].map(index => (
+                  <Switch
+                    color="violet"
+                    labelPosition="left"
+                    size="md"
+                    label={index + 1}
+                    checked={columnVisibility[index]}
+                    onClick={() => handleToggleColumnVisibility(index)}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div className={classes.modSection}>
-        {Object.values(data[weaponType]).map((data, index) => (
+        {Object.values(data[weaponType]).map((data, index) => columnVisibility[index] && (
           <ModList ilvlRange={fnIlvlRange} tierIndex={index} modList={data} modTracker={modTracker} modifyModsCallback={modifyMods} />
         ))}
       </div>
@@ -210,7 +244,24 @@ const useStyles = createStyles((theme) => ({
   sliderLabel: {
     marginRight: '10px',
   },
-
+  secondRowControls: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: '20px',
+  },
+  columnSwitches: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '20px',
+  },
+  columnSwitchContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    flexDirection: 'column',
+    gap: '8px',
+    marginTop: '30px',
+  },
   // Slider styles
   label: {
     top: 0,
